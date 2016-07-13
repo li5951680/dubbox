@@ -1,10 +1,10 @@
 package com.alibaba.dubbo.rpc.protocol.thrift2;
 
-import com.alibaba.dubbo.common.URL;
-import com.alibaba.dubbo.common.logger.Logger;
-import com.alibaba.dubbo.common.logger.LoggerFactory;
-import com.alibaba.dubbo.rpc.RpcException;
-import com.alibaba.dubbo.rpc.protocol.AbstractProxyProtocol;
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.apache.thrift.TProcessor;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
@@ -15,15 +15,22 @@ import org.apache.thrift.transport.TNonblockingServerSocket;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
 
-import java.lang.reflect.Constructor;
+import com.alibaba.dubbo.common.URL;
+import com.alibaba.dubbo.common.logger.Logger;
+import com.alibaba.dubbo.common.logger.LoggerFactory;
+import com.alibaba.dubbo.rpc.RpcException;
+import com.alibaba.dubbo.rpc.protocol.AbstractProxyProtocol;
 
 /**
  * 为dubbo-rpc添加"原生thrift"支持
  * by 杨俊明(http://yjmyzz.cnblogs.com/)
  */
 public class Thrift2Protocol extends AbstractProxyProtocol {
+	
     public static final int DEFAULT_PORT = 33208;
     private static final Logger logger = LoggerFactory.getLogger(Thrift2Protocol.class);
+    
+    private final List<TTransport> sports = Collections.synchronizedList(new ArrayList<TTransport>());
 
     public int getDefaultPort() {
         return DEFAULT_PORT;
@@ -116,6 +123,7 @@ public class Thrift2Protocol extends AbstractProxyProtocol {
                     protocol = new TCompactProtocol(transport);
                     thriftClient = (T) constructor.newInstance(protocol);
                     transport.open();
+                    sports.add(transport);
                     logger.info("thrift client opened for service(" + url + ")");
                 } catch (Exception e) {
                     logger.error(e.getMessage(), e);
@@ -127,6 +135,20 @@ public class Thrift2Protocol extends AbstractProxyProtocol {
             logger.error(e.getMessage(), e);
             throw new RpcException("Fail to create remoting client for service(" + url + "): " + e.getMessage(), e);
         }
+    }
+    
+    @Override
+    public void destroy() {
+    	super.destroy();
+    	try {
+			for(TTransport transport : sports){
+				if(transport.isOpen()){
+					transport.close();
+				}
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
     }
 
 }

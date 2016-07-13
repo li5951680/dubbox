@@ -83,8 +83,9 @@
 	<properties>
 		<!-- Common libs -->
 		<!--<spring.bom.version>3.2.9.RELEASE</spring.bom.version>-->
-		<spring.bom.version>4.2.4.RELEASE</spring.bom.version>
-		<javassist_version>3.15.0-GA</javassist_version>
+		<spring.bom.version>4.2.6.RELEASE</spring.bom.version>
+		<!--<javassist_version>3.15.0-GA</javassist_version>-->
+		<javassist_version>3.20.0-GA</javassist_version>
 		<!--<netty_version>3.7.0.Final</netty_version>-->
 		<netty_version>3.9.9.Final</netty_version>
 		<mina_version>1.1.7</mina_version>
@@ -143,6 +144,7 @@
 		<log4j2_version>2.5</log4j2_version>
 		<!-- Test libs -->
 		<junit_version>4.10</junit_version>
+		<!--<easymock_version>3.0</easymock_version>-->
 		<easymock_version>3.0</easymock_version>
 		<jmockit_version>0.999.8</jmockit_version>
 
@@ -724,6 +726,14 @@
 		</pluginManagement>
 
 	</build>
+	
+	<distributionManagement>
+		<repository>
+			<id>thirdparty</id>
+			<name>Skyzhw Release Repository</name>
+			<url>http://mvn.zxtd.com.cn/content/repositories/thirdparty/</url>
+		</repository>	
+	</distributionManagement>
 
 	<issueManagement>
 		<system>jira</system>
